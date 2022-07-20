@@ -1,74 +1,76 @@
 //
-//  ViewController.m
+//  MyFavViewController.m
 //  Stock Portfolio
 //
-//  Created by Juno Chen Kwan Lok on 20/07/2022.
+//  Created by Juno Chen Kwan Lok on 21/07/2022.
 //
 
-#import "ViewController.h"
-#import "View2ViewController.h"
 #import "MyFavViewController.h"
+#import "View1TableViewCell.h"
+#import "View2ViewController.h"
+#import "Constants.h"
 
-
-#define headerHeight 60
-@interface ViewController ()<UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate>
+@interface MyFavViewController ()<UITableViewDelegate, UITableViewDataSource>
 {
     NSMutableArray *names, *symbols;
     NSMutableArray *filteredNames;
-//
 
 }
 @end
 
-@implementation ViewController
+@implementation MyFavViewController
+-(instancetype)initWithCustom{
+    self = [super init];
+    if (self) {
+        [self readFromMyList];
+    }
+    return self;
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self.navigationController.navigationBar setBackgroundColor:[UIColor whiteColor]];
+    [self.navigationController.navigationBar setTintColor:[UIColor tintColor]];
+    [self.navigationController.navigationBar setTitleTextAttributes:
+       @{NSForegroundColorAttributeName:[UIColor blackColor]}];
+
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [self.tableView reloadData];
+    [self.indicator stopAnimating];
+    [self.indicator removeFromSuperview];
+
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"My Portfolio";
-    
-    UIBarButtonItem *favBtn = [[UIBarButtonItem alloc]initWithTitle:@"My List" style:UIBarButtonItemStylePlain target:self action:@selector(myListAction:)];
+    self.title = @"My Fav";
+    [self.view setBackgroundColor:[UIColor whiteColor]];
+    [self.navigationItem setLargeTitleDisplayMode:UINavigationItemLargeTitleDisplayModeNever];
 
-    self.navigationItem.rightBarButtonItem = favBtn;
-    self.navigationItem.rightBarButtonItem.tintColor = [UIColor whiteColor];
-    
     [self.view addSubview:self.tableView];
+    [self.view addSubview:self.indicator];
     
     [self.tableView.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = YES;
     [self.tableView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor].active = YES;
     // Do any additional setup after loading the view.
-    [self readCSVFile];
+
 }
 
--(void)myListAction:(UIBarButtonItem *)btn{
-    MyFavViewController *vc = [[MyFavViewController alloc] initWithCustom];
-    [self.navigationController pushViewController:vc animated:YES];
-}
 
--(void)readCSVFile{
+-(void)readFromMyList{
     names = [NSMutableArray array];
     symbols = [NSMutableArray array];
 
-    NSError *err;
-    NSString* fileContents = [NSString stringWithContentsOfURL:[NSURL URLWithString:@"https://www.alphavantage.co/query?function=LISTING_STATUS&apikey=AGLW9PZPDDCOXIWW"] encoding:NSASCIIStringEncoding error:&err];
-    NSArray* rows = [fileContents componentsSeparatedByString:@"\n"];
-    
-    for (NSString *row in rows){
-         NSArray* columns = [row componentsSeparatedByString:@","];
-        if (([columns count] > 1 ) && ![columns[0] isEqualToString:@"name"] && ![columns[0] isEqualToString:@"symbol"] ) {
-            [symbols addObject:columns[0]];
-            [names addObject:columns[1]];
-        }
-    }
+    NSMutableDictionary * myFavList = [[NSUserDefaults standardUserDefaults] objectForKey:kMYFavListKey];
+    names = [NSMutableArray arrayWithArray:[myFavList allKeys]];
+    symbols = [NSMutableArray arrayWithArray:[myFavList allValues]];
     
     filteredNames = [[NSMutableArray alloc] initWithArray:[names copy]];
-
+    [self.tableView reloadData];
 }
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-    [self.navigationController.navigationBar setBackgroundColor:[UIColor tintColor]];
-    [self.navigationController.navigationBar setTintColor:[UIColor tintColor]];
 
-}
 
 #pragma mark - Table View
 -(UITableView *)tableView{
@@ -117,20 +119,25 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForHeaderInSection:(NSInteger)section{
-    return headerHeight;
+    return CGFLOAT_MIN;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
 
-    return [self headerWithTitle];
+    return [UIView new];
 }
 
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    
     View1TableViewCell *cell =   [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([View1TableViewCell class])];
     if (!cell)
         cell = NSbunleloadNibName(NSStringFromClass([View1TableViewCell class]));
     cell.label.text = [filteredNames objectAtIndex:indexPath.row];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    [cell.bgView.layer setShadowOffset:CGSizeMake(0, 2)];
+    [cell.bgView.layer setShadowColor:[[UIColor blackColor] CGColor]];
+    [cell.bgView.layer setShadowOpacity:0.2];
+
     return cell;
 
 }
@@ -157,34 +164,16 @@
 }
 
 
--(UIView *)headerWithTitle{
-    UIView *viewBG = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth - 20, headerHeight)];
-    [viewBG setBackgroundColor:self.view.backgroundColor];
-    UITextField *tf = [[UITextField alloc] initWithFrame:CGRectMake(10, 5, kScreenWidth - 20, headerHeight - 10)];
-    [tf setPlaceholder:@"Search for a Company"];
-    [tf setBackgroundColor:[UIColor systemGray5Color]];
-    tf.layer.cornerRadius = 5;
-    tf.delegate = self;
-    [viewBG addSubview:tf];
 
-    return viewBG;
-    
+- (UIActivityIndicatorView *)indicator{
+    if (!_indicator) {
+        _indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+        _indicator.center = self.view.center;
+        [_indicator startAnimating];
+    }
+    return _indicator;
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField{
-    if ([textField.text length] == 0)
-        filteredNames = names;
-    else
-        filteredNames = [[names filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
-            NSString *originalTxt = [evaluatedObject uppercaseString];
-            NSString *filterText = [textField.text uppercaseString];
-            return [originalTxt containsString:filterText];
-        }]] mutableCopy];
-    
-    
-    
-    [self.tableView reloadData];
-    return YES;
-}
+
 
 @end

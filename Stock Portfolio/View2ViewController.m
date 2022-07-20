@@ -37,21 +37,67 @@
        @{NSForegroundColorAttributeName:[UIColor blackColor]}];
     
     [self.view addSubview:self.tableView];
+    [self.view addSubview:self.indicator];
     
     [self.tableView.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = YES;
     [self.tableView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor].active = YES;
+    
+    
+    NSMutableDictionary * myFavList = [[NSUserDefaults standardUserDefaults] objectForKey:kMYFavListKey];
+    BOOL isAdded = [[myFavList allKeys] containsObject:companyName];
+    UIBarButtonItem *favBtn = [[UIBarButtonItem alloc]initWithTitle: isAdded ? @"Unfollow" : @"Follow"  style:UIBarButtonItemStylePlain target:self action:@selector(favAction:)];
+    self.navigationItem.rightBarButtonItem = favBtn;
+    self.navigationItem.rightBarButtonItem.tintColor = [UIColor tintColor];
 
     // This fixes the issue
     // Do any additional setup after loading the view.
 }
+
+-(void)favAction:(UIBarButtonItem *)btn{
+    BOOL isAdded;
+    NSMutableDictionary * myFavList = [[[NSUserDefaults standardUserDefaults] objectForKey:kMYFavListKey] mutableCopy];
+    if (!myFavList)
+        myFavList = [NSMutableDictionary new];
+    
+    isAdded = [[myFavList allKeys] containsObject:companyName];
+    if (isAdded) {
+        NSMutableDictionary *newDic = [NSMutableDictionary new];
+        for (NSString *key in [myFavList allKeys]) {
+            if (![key isEqualToString:companyName]) {
+                [newDic setObject:companySymbol forKey:companyName];
+            }
+        }
+        myFavList = newDic;
+    
+    }else{
+        [myFavList setObject:companySymbol forKey:companyName];
+    }
+    
+    isAdded = !isAdded;
+
+    
+    UIBarButtonItem *favBtn = [[UIBarButtonItem alloc]initWithTitle: isAdded ?  @"Unfollow" : @"Follow" style:UIBarButtonItemStylePlain target:self action:@selector(favAction:)];
+    self.navigationItem.rightBarButtonItem = favBtn;
+
+    
+    [[NSUserDefaults standardUserDefaults] setObject:myFavList forKey:kMYFavListKey];
+    
+    NSLog(@"myListAction ");
+}
+
 
 -(void)rearrangeData:(NSDictionary *)model{
     list = [NSMutableArray new];
     
     NSArray *keys = [[model[@"annualReports"] firstObject] allKeys];
     NSDictionary *currentYearDic, *previousYearDic;
+    if (![model[@"annualReports"] firstObject]) {
+        [self openAlertWithTitle:@"No data found" message:[NSString stringWithFormat:@"This company '%@' currently have no any report. ",self->companyName]];
+        return;
+    }
+        
     currentYearDic = [model[@"annualReports"] firstObject];
-
+    
     if ([model[@"annualReports"] objectAtIndex:1]) {
         previousYearDic = [model[@"annualReports"] objectAtIndex:1];
     }
@@ -80,8 +126,6 @@
         options:0
         range:NSMakeRange(0, string.length)
         withTemplate:@"$1 $2"];
-    NSLog(@"Changed '%@' -> '%@'", string, newString);
-    
     return newString;
 }
 
@@ -106,16 +150,20 @@
 
 - (void)viewDidAppear:(BOOL)animated{
     [self fetchResultAPI:^(NSDictionary *dic, NSError *error) {
-        NSLog(@"dic = %@",dic);
+        [self.indicator stopAnimating];
+        [self.indicator removeFromSuperview];
         if (!error) {
-
             if ([[dic allKeys] count] == 0) {
                 [self openAlertWithTitle:@"No data found" message:[NSString stringWithFormat:@"This company '%@' currently have no any report. ",self->companyName]];
             }else{
-                [self rearrangeData:dic];
+                if ([[dic allKeys] containsObject:@"Note"]) {
+                    [self openAlertWithTitle:@"Note" message:dic[@"Note"]];
+                }else{
+                    [self rearrangeData:dic];
+                }
             }
         }else
-            NSLog(@"error = %@",error);
+            [self openAlertWithTitle:@"Failed to load data." message:[NSString stringWithFormat:@"Please check your connection. "]];
         
     }];
 }
@@ -149,6 +197,7 @@
         [_tableView setContentInset:UIEdgeInsetsZero];
         [_tableView setBackgroundColor:[UIColor clearColor]];
         [_tableView setShowsVerticalScrollIndicator:NO];
+        
         [_tableView setShowsHorizontalScrollIndicator:NO];
         
         UIRefreshControl* refreshController = [[UIRefreshControl alloc] init];
@@ -199,6 +248,7 @@
     if (!cell)
         cell = NSbunleloadNibName(NSStringFromClass([V2TableViewCell class]));
     [cell setCellData:[list objectAtIndex:indexPath.row]];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 
 }
@@ -305,14 +355,16 @@
             
     [dataTask resume];
 }
-/*
-#pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+
+
+
+- (UIActivityIndicatorView *)indicator{
+    if (!_indicator) {
+        _indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+        _indicator.center = self.view.center;
+        [_indicator startAnimating];
+    }
+    return _indicator;
 }
-*/
-
 @end

@@ -19,6 +19,7 @@
 		B81619732888505B00BC39BB /* View2ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B81619722888505B00BC39BB /* View2ViewController.m */; };
 		B81619802888573100BC39BB /* V2TableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B816197E2888573100BC39BB /* V2TableViewCell.m */; };
 		B81619812888573200BC39BB /* V2TableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B816197F2888573100BC39BB /* V2TableViewCell.xib */; };
+		B8161987288879E800BC39BB /* MyFavViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8161986288879E800BC39BB /* MyFavViewController.m */; };
 		F267770BB085020AE93E7AED /* Pods_Stock_Portfolio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84CE48232C5C5D9AE4BD4959 /* Pods_Stock_Portfolio.framework */; };
 /* End PBXBuildFile section */
 
@@ -47,6 +48,8 @@
 		B816197D2888573100BC39BB /* V2TableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = V2TableViewCell.h; sourceTree = "<group>"; };
 		B816197E2888573100BC39BB /* V2TableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = V2TableViewCell.m; sourceTree = "<group>"; };
 		B816197F2888573100BC39BB /* V2TableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = V2TableViewCell.xib; sourceTree = "<group>"; };
+		B8161985288879E800BC39BB /* MyFavViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyFavViewController.h; sourceTree = "<group>"; };
+		B8161986288879E800BC39BB /* MyFavViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyFavViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +101,8 @@
 				B816195528883BBC00BC39BB /* SceneDelegate.m */,
 				B816195728883BBC00BC39BB /* ViewController.h */,
 				B816195828883BBC00BC39BB /* ViewController.m */,
+				B8161985288879E800BC39BB /* MyFavViewController.h */,
+				B8161986288879E800BC39BB /* MyFavViewController.m */,
 				B81619712888505B00BC39BB /* View2ViewController.h */,
 				B81619722888505B00BC39BB /* View2ViewController.m */,
 				B816195A28883BBC00BC39BB /* Main.storyboard */,
@@ -257,6 +262,7 @@
 			files = (
 				B816195928883BBC00BC39BB /* ViewController.m in Sources */,
 				B81619802888573100BC39BB /* V2TableViewCell.m in Sources */,
+				B8161987288879E800BC39BB /* MyFavViewController.m in Sources */,
 				B816195328883BBC00BC39BB /* AppDelegate.m in Sources */,
 				B81619732888505B00BC39BB /* View2ViewController.m in Sources */,
 				B816196F288846F600BC39BB /* View1TableViewCell.m in Sources */,

@@ -13,5 +13,5 @@
 #define kScreenWidth [UIScreen mainScreen].bounds.size.width
 
 #define NSbunleloadNibName(nibName) [[[NSBundle mainBundle] loadNibNamed:nibName owner:nil options:nil] lastObject]
-
+#define kMYFavListKey @"kMYFavListKey"
 #endif /* Constants_h */
