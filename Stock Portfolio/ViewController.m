@@ -160,7 +160,18 @@
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    if ([textField.text length] == 0)
+        filteredNames = names;
+    else
+        filteredNames = [[names filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+            NSString *originalTxt = [evaluatedObject uppercaseString];
+            NSString *filterText = [textField.text uppercaseString];
+            return [originalTxt containsString:filterText];
+        }]] mutableCopy];
     
+    
+    
+    [self.tableView reloadData];
     return YES;
 }
 
