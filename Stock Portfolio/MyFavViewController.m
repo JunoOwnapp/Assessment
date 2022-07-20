@@ -22,7 +22,6 @@
 -(instancetype)initWithCustom{
     self = [super init];
     if (self) {
-        [self readFromMyList];
     }
     return self;
 }
@@ -33,6 +32,7 @@
     [self.navigationController.navigationBar setTintColor:[UIColor tintColor]];
     [self.navigationController.navigationBar setTitleTextAttributes:
        @{NSForegroundColorAttributeName:[UIColor blackColor]}];
+    [self readFromMyList];
 
 }
 
