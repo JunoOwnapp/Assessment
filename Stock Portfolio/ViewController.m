@@ -8,12 +8,14 @@
 #import "ViewController.h"
 #import "View2ViewController.h"
 
-#define listOfCompany @[@"IBM", @"TSLA"]
 
 #define headerHeight 60
 @interface ViewController ()<UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate>
 {
-    NSArray *list ;
+    NSMutableArray *names, *symbols;
+    NSMutableArray *filteredNames;
+//
+
 }
 @end
 
@@ -23,15 +25,34 @@
     [super viewDidLoad];
     self.title = @"My Portfolio";
     NSLog(@"opened view controller");
-    list = [listOfCompany copy];
     [self.view addSubview:self.tableView];
     
     [self.tableView.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = YES;
     [self.tableView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor].active = YES;
     // Do any additional setup after loading the view.
-    
+    [self readCSVFile];
 }
 
+
+-(void)readCSVFile{
+    names = [NSMutableArray array];
+    symbols = [NSMutableArray array];
+
+    NSError *err;
+    NSString* fileContents = [NSString stringWithContentsOfURL:[NSURL URLWithString:@"https://www.alphavantage.co/query?function=LISTING_STATUS&apikey=AGLW9PZPDDCOXIWW"] encoding:NSASCIIStringEncoding error:&err];
+    NSArray* rows = [fileContents componentsSeparatedByString:@"\n"];
+    
+    for (NSString *row in rows){
+         NSArray* columns = [row componentsSeparatedByString:@","];
+        if (([columns count] > 1 ) && ![columns[0] isEqualToString:@"name"] && ![columns[0] isEqualToString:@"symbol"] ) {
+            [symbols addObject:columns[0]];
+            [names addObject:columns[1]];
+        }
+    }
+    
+    filteredNames = [[NSMutableArray alloc] initWithArray:[names copy]];
+
+}
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [self.navigationController.navigationBar setBackgroundColor:[UIColor tintColor]];
@@ -73,7 +94,7 @@
 
 #pragma mark - UITableViewDelegate & UITableViewDataSource
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [list count];
+    return [filteredNames count];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
@@ -97,16 +118,18 @@
     View1TableViewCell *cell =   [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([View1TableViewCell class])];
     if (!cell)
         cell = NSbunleloadNibName(NSStringFromClass([View1TableViewCell class]));
-    cell.label.text = [list objectAtIndex:indexPath.row];
+    cell.label.text = [filteredNames objectAtIndex:indexPath.row];
     return cell;
 
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    View2ViewController *vc = [[View2ViewController alloc] init];
-    vc.title = [list objectAtIndex:indexPath.row];
-    
+    NSString *companyName = [filteredNames objectAtIndex:indexPath.row];
+    NSInteger index = [names indexOfObject:companyName];
+    NSString *symbol = [symbols objectAtIndex:index];
+    View2ViewController *vc = [[View2ViewController alloc] initWithCoperateName:companyName Symbol:symbol];
+
     [self.navigationController pushViewController:vc animated:YES];
     
 }

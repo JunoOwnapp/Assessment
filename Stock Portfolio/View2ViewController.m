@@ -12,11 +12,20 @@
 @interface View2ViewController ()<UITableViewDelegate , UITableViewDataSource>
 {
     NSMutableArray<V2TBData *> *list;
-    
+    NSString *companyName, *companySymbol;
 }
 @end
 
 @implementation View2ViewController
+-(instancetype)initWithCoperateName:(NSString *)name Symbol:(NSString *)symbol{
+    self = [super init];
+    if (self) {
+        companyName = name;
+        companySymbol = symbol;
+        self.title = name;
+    }
+    return self;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -40,16 +49,21 @@
     list = [NSMutableArray new];
     
     NSArray *keys = [[model[@"annualReports"] firstObject] allKeys];
-    NSDictionary *currentYearDic = [model[@"annualReports"] firstObject];
-    NSDictionary *previousYearDic = [model[@"annualReports"] objectAtIndex:1];
+    NSDictionary *currentYearDic, *previousYearDic;
+    currentYearDic = [model[@"annualReports"] firstObject];
+
+    if ([model[@"annualReports"] objectAtIndex:1]) {
+        previousYearDic = [model[@"annualReports"] objectAtIndex:1];
+    }
+    
     
     self.year1Lbl.text = [self getYearFromDate:[currentYearDic objectForKey:@"fiscalDateEnding"]];
-    self.year2Lbl.text = [self getYearFromDate:[previousYearDic objectForKey:@"fiscalDateEnding"]];
+    self.year2Lbl.text = previousYearDic ? [self getYearFromDate:[previousYearDic objectForKey:@"fiscalDateEnding"]] : @"Non";
     
     for (int i = 0 ; i < [keys count]; i ++) {
         NSString *key = [keys objectAtIndex:i];
         NSString *title = [self convertStringToReadableTitleFrom:key];
-        [list addObject:[self createV2TBDataWithTitle:title year1Data:[currentYearDic objectForKey:key] year2Data:[previousYearDic objectForKey:key]]];
+        [list addObject:[self createV2TBDataWithTitle:title year1Data:[currentYearDic objectForKey:key] year2Data:previousYearDic ? [previousYearDic objectForKey:key] : @"-"]];
     }
 
     
@@ -94,19 +108,32 @@
     [self fetchResultAPI:^(NSDictionary *dic, NSError *error) {
         NSLog(@"dic = %@",dic);
         if (!error) {
-            NSError *err;
-//            FinancialModel *model = [[FinancialModel alloc] initWithDictionary:dic error:&err];
-//            if (err)
-//                NSLog(@"err = %@",err);
-//
-            [self rearrangeData:dic];
+
+            if ([[dic allKeys] count] == 0) {
+                [self openAlertWithTitle:@"No data found" message:[NSString stringWithFormat:@"This company '%@' currently have no any report. ",self->companyName]];
+            }else{
+                [self rearrangeData:dic];
+            }
         }else
             NSLog(@"error = %@",error);
         
     }];
 }
 
+-(void)openAlertWithTitle:(NSString *)title message:(NSString *)message{
+    UIAlertController * alertvc = [UIAlertController alertControllerWithTitle: title
+                                                                      message:message preferredStyle: UIAlertControllerStyleAlert ];
+    
+    UIAlertAction * action2 = [UIAlertAction actionWithTitle: @"OK"
+                                                       style: UIAlertActionStyleCancel handler: ^ (UIAlertAction * _Nonnull action) {
+        [self.navigationController popViewControllerAnimated:YES];
+       
+    }];
+    
+    [alertvc addAction: action2];
+    [self presentViewController: alertvc animated: YES completion: nil];
 
+}
 
 #pragma mark - Table View
 -(UITableView *)tableView{
@@ -240,7 +267,7 @@
 
 -(void)fetchResultAPI:(void(^)(NSDictionary * dic, NSError * error))complete{
     
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=%@&interval=5min&apikey=AGLW9PZPDDCOXIWW", self.title]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=%@&interval=5min&apikey=AGLW9PZPDDCOXIWW", companySymbol]];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     [request setHTTPMethod:@"GET"];
     [request addValue:@"application/json" forHTTPHeaderField:@"Accept"];

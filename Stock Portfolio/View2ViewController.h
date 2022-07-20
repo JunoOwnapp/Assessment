@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) UITableView *tableView;
 @property (strong, nonatomic) UILabel *year1Lbl;
 @property (strong, nonatomic) UILabel *year2Lbl;
-
+-(instancetype)initWithCoperateName:(NSString *)name Symbol:(NSString *)symbol;
 @end
 
 

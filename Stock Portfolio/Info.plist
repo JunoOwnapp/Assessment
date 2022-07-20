@@ -25,5 +25,23 @@
 	</dict>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleLightContent</string>
+    <key>NSFileProviderDomainUsageDescription</key>
+        <string>Description</string>
+        <key>UISupportsDocumentBrowser</key>
+        <true/>
+        <key>NSDesktopFolderUsageDescription</key>
+        <string></string>
+        <key>NSDownloadsFolderUsageDescription</key>
+        <string></string>
+        <key>NSFileProviderPresenceUsageDescription</key>
+        <string></string>
+        <key>NSAppleMusicUsageDescription</key>
+        <string></string>
+        <key>UIFileSharingEnabled</key>
+        <true/>
+        <key>NSDocumentsFolderUsageDescription</key>
+        <string>Description</string>
+        <key>LSSupportsOpeningDocumentsInPlace</key>
+        <true/>
 </dict>
 </plist>
