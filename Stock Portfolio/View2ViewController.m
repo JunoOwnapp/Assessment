@@ -317,7 +317,7 @@
 
 -(void)fetchResultAPI:(void(^)(NSDictionary * dic, NSError * error))complete{
     
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=%@&interval=5min&apikey=AGLW9PZPDDCOXIWW", companySymbol]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=%@&interval=5min&apikey=%@", companySymbol, APIkey]];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     [request setHTTPMethod:@"GET"];
     [request addValue:@"application/json" forHTTPHeaderField:@"Accept"];

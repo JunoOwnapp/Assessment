@@ -14,4 +14,5 @@
 
 #define NSbunleloadNibName(nibName) [[[NSBundle mainBundle] loadNibNamed:nibName owner:nil options:nil] lastObject]
 #define kMYFavListKey @"kMYFavListKey"
+#define APIkey @"AGLW9PZPDDCOXIWW"
 #endif /* Constants_h */
