@@ -98,7 +98,7 @@
         
     currentYearDic = [model[@"annualReports"] firstObject];
     
-    if ([model[@"annualReports"] objectAtIndex:1]) {
+    if ([model[@"annualReports"] count] > 1) {
         previousYearDic = [model[@"annualReports"] objectAtIndex:1];
     }
     
